@@ -1,0 +1,46 @@
+# Introduction
+
+mntr makes it possible to specify the contents of the /etc/fstab file using
+multiple fragments stored in /etc/mntr.d directory.  The main purpose of this
+tool is to facilitate automatic management of NFS mounts on multiple Linux
+machines. However, it can also be used to manage local disk mounts on a single
+machine.  If your Linux distribution does not provide /etc/fstab.d, mntr will
+be a good replacement.
+
+# How does it work ? 
+
+mntr reads fstab snippets from /etc/mntr.d directory.
+Snippets contain lines defining filesystem mounts, the same as found in
+/etc/fstab. Comments can be used to specify additional mntr options. 
+All snippets are concatenated and merged into /etc/fstab. Markers separate
+mntr generated content from original fstab.
+
+** Additional features include: **
+
+* an option which tells mntr to unmount a NFS filesystem if the server is unreachable. 
+mntr is careful not to suspend on I/O wait.
+* an option to specify an alternative mount line: if the primary NFS server is not
+reachable, mntr will remount the filesystem using another server.
+
+** Upcoming features: **
+
+* --force-unmount option which will attempt to terminate processes using a filesystem
+before unmounting it.
+
+* specify pre_ and post_ (u)mount commands. The commands can be used to stop
+certain services before unmounting the filesystem, and start them after
+mounting. (Example: stop apache, unmount /var/www, mount /var/www from another
+server, start apache)
+
+# Configuration management software (Puppet, Chef, ...)
+
+You may use a configuration management software to distribute mntr snippets.
+
+## Puppet 
+
+You can manage /etc/fstab with Puppet and mntr at the same time. Puppet
+<pre>mount</pre> resource works 'per line' and mntr keeps track of it's own
+lines separated by markers. Of course, things will go wrong if you try to
+manage the same filesystem with both mntr and Puppet.
+
+## Other
